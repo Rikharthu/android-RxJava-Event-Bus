@@ -10,9 +10,8 @@ import com.example.uberv.rxeventbus.events.IMyEvent;
 import com.example.uberv.rxeventbus.events.RandomFloatEvent;
 import com.example.uberv.rxeventbus.events.RandomIntegerEvent;
 
-import java.util.Random;
-
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,7 +36,18 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("IMyEvent", "Generic Event");
                     }
                 });
-
+        bus.getObservable()
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<IMyEvent>() {
+                    @Override
+                    public void accept(IMyEvent event) throws Exception {
+                        if (event instanceof RandomFloatEvent) {
+                            Log.d("IMyEvent", "Received RandomFloatEvent: " + ((RandomFloatEvent) event).getValue());
+                        } else if (event instanceof RandomIntegerEvent) {
+                            Log.d("IMyEvent", "Received RandomIntegerEvent: " + ((RandomIntegerEvent) event).getValue());
+                        }
+                    }
+                });
     }
 
     private Consumer<RandomFloatEvent> onRandomFloatEvent() {

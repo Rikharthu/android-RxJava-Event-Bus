@@ -29,6 +29,11 @@ public class MyEventBus {
                 .cast(eventClass);
     }
 
+    public Observable<IMyEvent> getObservable() {
+        return mEventPublisher
+                .filter(object -> object != null);
+    }
+
     public void post(IMyEvent event) {
         if (sInstance.mEventPublisher.hasObservers()) {
             sInstance.mEventPublisher.onNext(event);
