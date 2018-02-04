@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
-import com.example.uberv.rxeventbus.bus.MyEventBus;
+import com.example.uberv.rxeventbus.bus.RxEventBus;
 import com.example.uberv.rxeventbus.events.IMyEvent;
 import com.example.uberv.rxeventbus.events.RandomFloatEvent;
 import com.example.uberv.rxeventbus.events.RandomIntegerEvent;
@@ -20,32 +20,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MyEventBus bus = MyEventBus.instanceOf();
+        RxEventBus bus = RxEventBus.events();
 
         Consumer<RandomIntegerEvent> randomIntEventListener =
                 randomIntegerEvent -> Log.d("RandomIntegerEvent", "" + randomIntegerEvent.getValue());
 
-        bus.getObservable(RandomIntegerEvent.class)
+        bus.of(RandomIntegerEvent.class)
                 .subscribe(randomIntEventListener);
-        bus.getObservable(RandomFloatEvent.class)
+        bus.of(RandomFloatEvent.class)
                 .subscribe(onRandomFloatEvent());
-        bus.getObservable(IMyEvent.class)
-                .subscribe(new Consumer<IMyEvent>() {
-                    @Override
-                    public void accept(IMyEvent iMyEvent) throws Exception {
-                        Log.d("IMyEvent", "Generic Event");
-                    }
-                });
-        bus.getObservable()
+        bus.of(IMyEvent.class)
+                .subscribe(iMyEvent -> Log.d("IMyEvent", "Generic Event"));
+        bus.all()
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<IMyEvent>() {
-                    @Override
-                    public void accept(IMyEvent event) throws Exception {
-                        if (event instanceof RandomFloatEvent) {
-                            Log.d("IMyEvent", "Received RandomFloatEvent: " + ((RandomFloatEvent) event).getValue());
-                        } else if (event instanceof RandomIntegerEvent) {
-                            Log.d("IMyEvent", "Received RandomIntegerEvent: " + ((RandomIntegerEvent) event).getValue());
-                        }
+                .subscribe(event -> {
+                    if (event instanceof RandomFloatEvent) {
+                        Log.d("IMyEvent", "Received RandomFloatEvent: " + ((RandomFloatEvent) event).getValue());
+                    } else if (event instanceof RandomIntegerEvent) {
+                        Log.d("IMyEvent", "Received RandomIntegerEvent: " + ((RandomIntegerEvent) event).getValue());
                     }
                 });
     }
@@ -55,15 +47,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onIMyEventClicked(View view) {
-        MyEventBus.instanceOf().post(new IMyEvent() {
+        RxEventBus.events().post(new IMyEvent() {
         });
     }
 
     public void onFloatEventClicked(View view) {
-        MyEventBus.instanceOf().post(new RandomFloatEvent());
+        RxEventBus.events().post(new RandomFloatEvent());
     }
 
     public void onIntegerEventClicked(View view) {
-        MyEventBus.instanceOf().post(new RandomIntegerEvent());
+        RxEventBus.events().post(new RandomIntegerEvent());
     }
 }

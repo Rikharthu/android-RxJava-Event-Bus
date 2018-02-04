@@ -5,31 +5,31 @@ import com.example.uberv.rxeventbus.events.IMyEvent;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
-public class MyEventBus {
+public class RxEventBus {
 
     private PublishSubject<IMyEvent> mEventPublisher;
 
-    private static MyEventBus sInstance;
+    private static RxEventBus sInstance;
 
-    public MyEventBus() {
+    private RxEventBus() {
         mEventPublisher = PublishSubject.create();
     }
 
-    public static MyEventBus instanceOf() {
+    public static RxEventBus events() {
         if (sInstance == null) {
-            sInstance = new MyEventBus();
+            sInstance = new RxEventBus();
         }
         return sInstance;
     }
 
-    public <T extends IMyEvent> Observable<T> getObservable(Class<T> eventClass) {
+    public <T extends IMyEvent> Observable<T> of(Class<T> eventClass) {
         return mEventPublisher
                 .filter(object -> object != null)
-                .filter(eventClass::isInstance) // object -> eventClass.isInstance(object)
+                .filter(eventClass::isInstance)
                 .cast(eventClass);
     }
 
-    public Observable<IMyEvent> getObservable() {
+    public Observable<IMyEvent> all() {
         return mEventPublisher
                 .filter(object -> object != null);
     }
